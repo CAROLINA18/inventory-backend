@@ -2,7 +2,9 @@ package com.company.inventory.services;
 
 
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,6 +32,34 @@ public class CategoryServiceImpl  implements ICategoryService{
 			List<Category> category = (List<Category>) categoryDao.findAll();
 			response.getCategoryResponse().setCategory(category);
 			response.setMetadata("Respuesta AN", "00", "Respuesta Exitosa AN");
+			
+		}catch(Exception e) {
+			response.setMetadata("Respuesta No Corrects", "-1", "Error exception");
+			e.getStackTrace();
+			return new ResponseEntity<CategoryResponseRest>(response , HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		return new ResponseEntity<CategoryResponseRest>(response , HttpStatus.OK);
+		
+	}
+
+
+	@Transactional(readOnly = true)
+	public ResponseEntity<CategoryResponseRest> searchById(Long id) {
+		// TODO Auto-generated method stub
+		CategoryResponseRest response  = new CategoryResponseRest();
+		List<Category> list = new ArrayList<>();
+		
+		try {
+			Optional<Category> category = categoryDao.findById(id);
+			if(category.isPresent()) {
+				list.add(category.get());
+				response.getCategoryResponse().setCategory(list);
+				response.setMetadata("Respuesta ok", "00", "categoria encontrada");
+			}else {
+				response.setMetadata("Respuesta No Corrects", "-1", "No se encontro nada");
+				return new ResponseEntity<CategoryResponseRest>(response , HttpStatus.NOT_FOUND);
+			}
 			
 		}catch(Exception e) {
 			response.setMetadata("Respuesta No Corrects", "-1", "Error exception");
